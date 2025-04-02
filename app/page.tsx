@@ -751,7 +751,7 @@ export default function Home() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-6xl w-[90vw] max-h-[80vh] overflow-hidden">
           <DialogHeader>
-            <DialogTitle className="flex justify-between items-center">
+            <DialogTitle className="flex mt-4 justify-between items-center">
               <span>Transaction Data ({selectedData && 'txs' in selectedData ? (selectedData.txs as unknown[]).length : 
                 (selectedData && 'offers' in selectedData ? (selectedData.offers as unknown[]).length : 0)} records)</span>
               <Button 
