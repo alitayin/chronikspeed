@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
       ...config.experiments,
       asyncWebAssembly: true,
       layers: true,
+      syncWebAssembly: true, // 添加同步 WebAssembly 支持
     };
 
     // 设置 WebAssembly 模块文件名
@@ -33,6 +34,15 @@ const nextConfig: NextConfig = {
       test: /\.wasm$/,
       type: 'webassembly/async',
     });
+
+    // 添加解析别名，解决 'wbg' 模块问题
+    config.resolve = {
+      ...config.resolve,
+      fallback: {
+        ...config.resolve?.fallback,
+        'wbg': false, // 告诉 webpack 忽略 wbg 模块
+      },
+    };
 
     // 复制 WebAssembly 文件到可能需要的各个位置
     config.plugins.push(
