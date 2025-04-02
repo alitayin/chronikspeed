@@ -6,7 +6,12 @@ export async function GET(request: NextRequest) {
   
   if (!ip || ip === 'self') {
     try {
-      const response = await fetch('http://ip-api.com/json/?fields=status,country,city,query');
+      // 获取用户真实 IP
+      const userIp = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                     request.headers.get('x-real-ip') || 
+                     '127.0.0.1';
+      
+      const response = await fetch(`http://ip-api.com/json/${userIp}?fields=status,country,city,query`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
