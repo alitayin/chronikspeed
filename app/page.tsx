@@ -556,7 +556,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen p-8">
-      <main className="flex-1 max-w-5xl mx-auto w-full space-y-8">
+      <main className="flex-1 max-w-6xl mx-auto w-full space-y-8">
         {!showConfig && (
           <Button 
             variant="outline" 
@@ -749,7 +749,7 @@ export default function Home() {
       </main>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-5xl w-[90vw] max-h-[80vh] overflow-hidden">
+        <DialogContent className="max-w-6xl w-[90vw] max-h-[80vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex justify-between items-center">
               <span>Transaction Data ({selectedData && 'txs' in selectedData ? (selectedData.txs as unknown[]).length : 
