@@ -11,18 +11,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { toast } from "sonner"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-// 默认测试地址
+// Default test address
 const DEFAULT_ADDRESS = "ecash:qr6lws9uwmjkkaau4w956lugs9nlg9hudqs26lyxkv";
-// 默认记录数
+// Default record count
 const DEFAULT_RECORD_COUNT = 10;
-// 最大记录数
+// Maximum record count
 const MAX_RECORD_COUNT = 600;
-// Chronik 每页最大记录数
+// Chronik maximum page size
 const MAX_PAGE_SIZE = 200;
-// 默认 Token ID
+// Default Token ID
 const DEFAULT_TOKEN_ID = "ac31bb0bccf33de1683efce4da64f1cb6d8e8d6e098bc01c51d5864deb0e783f";
 
-// 默认节点列表
+// Default node list
 const DEFAULT_NODES = [
   "https://chronik1.alitayin.com",
   "https://chronik2.alitayin.com",
@@ -35,13 +35,13 @@ const DEFAULT_NODES = [
   "https://xec.paybutton.org",
 ];
 
-// 交易记录类型
+// Transaction record type
 interface Transaction {
   txid: string;
   [key: string]: unknown;
 }
 
-// 结果类型定义
+// Result type definition
 interface TestResult {
   node: string;
   ip: string;
@@ -54,7 +54,7 @@ interface TestResult {
   data?: Record<string, unknown>;
 }
 
-// Token交易测试结果类型
+// Token transaction test result type
 interface TokenTestResult {
   node: string;
   ip: string;
@@ -68,7 +68,7 @@ interface TokenTestResult {
   data?: Record<string, unknown>;
 }
 
-// 合并测试结果类型
+// Combined test result type
 interface CombinedTestResult {
   node: string;
   ip: string;
@@ -84,30 +84,30 @@ interface CombinedTestResult {
   tokenData?: Record<string, unknown>;
 }
 
-// 扩展 JSON.stringify 以处理 BigInt 并添加格式化
+// Extend JSON.stringify to handle BigInt and add formatting
 const jsonStringifyWithBigIntFormatted = (obj: Record<string, unknown>): string => {
   return JSON.stringify(obj, (key, value) => 
     typeof value === 'bigint' ? value.toString() : value
   , 2);
 };
 
-// 测量响应时间（使用 blockchainInfo 请求来估算网络延迟）
+// Measure response time (using blockchainInfo request to estimate network latency)
 async function measureResponseTime(chronik: ChronikClient): Promise<number> {
   try {
-    // 执行多次请求并取平均值，以获得更准确的结果
+    // Execute multiple requests and take the average for more accurate results
     const requestCount = 3;
     let totalTime = 0;
     
     for (let i = 0; i < requestCount; i++) {
       const start = Date.now();
-      // 使用 blockchainInfo 端点，这是一个轻量级请求
+      // Use blockchainInfo endpoint, which is a lightweight request
       await chronik.blockchainInfo();
       totalTime += (Date.now() - start);
     }
     
     return Math.round(totalTime / requestCount);
   } catch (error) {
-    console.error(`响应时间测量失败:`, error);
+    console.error(`Response time measurement failed:`, error);
     return -1;
   }
 }
@@ -129,7 +129,7 @@ export default function Home() {
   const [userIp, setUserIp] = useState<string>("");
   const [userLocation, setUserLocation] = useState<string>("");
 
-  // 获取主机名的 IP 地址
+  // Get IP address for hostname
   useEffect(() => {
     async function fetchIPs() {
       const nodeList = nodes.split("\n").filter(node => node.trim() !== "");
@@ -160,16 +160,16 @@ export default function Home() {
                       }
                     }
                   } catch (cnameError) {
-                    console.error(`无法解析CNAME ${data.Answer[0].data}:`, cnameError);
+                    console.error(`Unable to resolve CNAME ${data.Answer[0].data}:`, cnameError);
                   }
                 }
               }
             } catch (fetchError) {
-              console.error(`无法解析 ${hostname} 的 IP 地址:`, fetchError);
+              console.error(`Unable to resolve IP address for ${hostname}:`, fetchError);
             }
           }
         } catch (error) {
-          console.error(`无效的 URL: ${nodeUrl}`, error);
+          console.error(`Invalid URL: ${nodeUrl}`, error);
         }
       }
 
@@ -181,7 +181,7 @@ export default function Home() {
     fetchIPs();
   }, [nodes, ipCache]);
 
-  // 获取 IP 地理位置信息
+  // Get IP geolocation information
   const getIpLocation = async (ip: string): Promise<string> => {
     if (ipLocationCache[ip]) {
       return ipLocationCache[ip];
@@ -202,12 +202,12 @@ export default function Home() {
         return "Unknown";
       }
     } catch (error) {
-      console.error("获取 IP 位置信息失败:", error);
+      console.error("Failed to get IP location information:", error);
       return "Unknown";
     }
   };
 
-  // 获取用户IP和位置信息
+  // Get user IP and location information
   useEffect(() => {
     async function fetchUserIpInfo() {
       try {
@@ -222,14 +222,14 @@ export default function Home() {
           setUserLocation(`${data.country}${data.city ? `, ${data.city}` : ""}`);
         }
       } catch (error) {
-        console.error("获取用户IP信息失败:", error);
+        console.error("Failed to get user IP information:", error);
       }
     }
     
     fetchUserIpInfo();
   }, []);
 
-  // 测试单个节点
+  // Test a single node
   async function testNode(nodeUrl: string, signal: AbortSignal): Promise<TestResult> {
     try {
       if (signal.aborted) {
@@ -270,7 +270,7 @@ export default function Home() {
             const historyString = jsonStringifyWithBigIntFormatted(history as unknown as Record<string, unknown>);
             totalDataSize += new Blob([historyString]).size;
           } catch (sizeError) {
-            console.error("计算数据大小时出错:", sizeError);
+            console.error("Error calculating data size:", sizeError);
           }
         }
         
@@ -319,7 +319,7 @@ export default function Home() {
     }
   }
 
-  // 测试单个节点的Token交易
+  // Test token transactions for a single node
   async function testNodeToken(nodeUrl: string, signal: AbortSignal): Promise<TokenTestResult> {
     try {
       if (signal.aborted) {
@@ -347,7 +347,7 @@ export default function Home() {
           setTimeout(() => reject(new Error("Timeout")), 10000)
         );
         
-        const pageSize = 200;
+        const pageSize = 50;
         const result = await Promise.race([
           agora.historicOffers({
             type: 'TOKEN_ID',
@@ -422,13 +422,13 @@ export default function Home() {
     }
   }
 
-  // 运行所有测试
+  // Run all tests
   async function runAllTests() {
     setIsLoading(true);
     setCombinedResults([]);
     setShowConfig(false);
     
-    // 创建一个新的 AbortController 用于取消测试
+    // Create a new AbortController for cancelling tests
     const controller = new AbortController();
     setAbortController(controller);
     
@@ -510,24 +510,24 @@ export default function Home() {
     }
   }
 
-  // 处理记录数输入变化
+  // Handle record count input change
   const handleRecordCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     if (!isNaN(value) && value > 0) {
-      // 限制最大值为 MAX_RECORD_COUNT
+      // Limit maximum to MAX_RECORD_COUNT
       setRecordCount(Math.min(value, MAX_RECORD_COUNT));
     } else if (e.target.value === "") {
       setRecordCount(0);
     }
   };
 
-  // 添加查看数据的函数
+  // Add view data function
   const viewData = (data: Record<string, unknown>) => {
     setSelectedData(data);
     setDialogOpen(true);
   };
 
-  // 添加复制功能
+  // Add copy functionality
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
       .then(() => {
@@ -541,9 +541,9 @@ export default function Home() {
       });
   };
 
-  // 返回配置页面并终止测试
+  // Return to configuration page and terminate test
   const handleBackToConfig = () => {
-    // 终止正在进行的测试
+    // Terminate ongoing test
     if (abortController) {
       abortController.abort();
       setAbortController(null);
@@ -615,7 +615,7 @@ export default function Home() {
                     placeholder="Enter token ID to test"
                   />
                   <p className="text-xs text-muted-foreground">
-                    By default, only the first page of agora transactions will be fetched (pagesize=200)
+                    By default, only the first page of agora transactions will be fetched (pagesize=50)
                   </p>
                 </div>
                 
@@ -652,7 +652,7 @@ export default function Home() {
               </CardTitle>
               {userIp && (
                 <div className="text-sm text-muted-foreground">
-                  您的IP: {userIp} {userLocation && `(${userLocation})`}
+                  Your IP: {userIp} {userLocation && `(${userLocation})`}
                 </div>
               )}
             </CardHeader>
